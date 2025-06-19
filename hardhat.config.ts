@@ -1,7 +1,16 @@
 import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
 import "@oasisprotocol/sapphire-hardhat";
-import "dotenv/config"
+import "dotenv/config";
+
+import "hardhat-deploy";
+import "hardhat-deploy-ethers"
+
+import "@nomicfoundation/hardhat-chai-matchers";
+import "@nomicfoundation/hardhat-ethers";
+import "@typechain/hardhat";
+import "hardhat-gas-reporter";
+import "solidity-coverage";
 
 const accounts = [process.env.PRIVATE_KEY as string];
 
@@ -19,6 +28,16 @@ const config: HardhatUserConfig = {
             accounts,
             chainId: 0x5aff,
         },
+    },
+
+    namedAccounts: {
+        deployer: 0,
+        alice: 1,
+        bob: 2,
+    },
+
+    gasReporter: {
+        enabled: true,
     },
 };
 
