@@ -9,18 +9,24 @@ contract InvestorProfile is Roles {
         PROFESSIONAL
     }
 
+    struct Investment {
+        uint investmentAmount;
+        uint assetAmount;
+    }
+
     struct Investor {
         bytes32 userId;
         InvestorCategory category;
-        uint portfolioValue;
         // investment id => amount
-        mapping(bytes32 => uint256) investments;
+        mapping(bytes32 => Investment) investments;
     }
 
     struct InvestmentAsset {
         bytes32 id;
         string name;
         address investmentToken;
+        address assetToken;
+        uint chainId;
         bool isActive;
     }
 
@@ -31,13 +37,13 @@ contract InvestorProfile is Roles {
         bytes32 indexed userId,
         bytes32 indexed assetId,
         uint tokenAmount,
-        uint usdValue
+        uint assetAmount
     );
     event UserWithdraw(
         bytes32 indexed userId,
         bytes32 indexed assetId,
         uint tokenAmount,
-        uint usdValue
+        uint assetAmount
     );
 
     mapping(bytes32 => Investor) private investors;
@@ -48,10 +54,9 @@ contract InvestorProfile is Roles {
         InvestorCategory category
     ) external onlyAdminOrOwner {
         Investor storage i = investors[userId];
-        require(i.userId != bytes32(0), "UserId already taken");
+        require(i.userId == bytes32(0), "UserId already taken");
         investors[userId].userId = userId;
         investors[userId].category = category;
-        investors[userId].portfolioValue = 0;
 
         emit InvestorAdded(userId, category);
     }
@@ -59,14 +64,18 @@ contract InvestorProfile is Roles {
     function addInvestmentOption(
         bytes32 id,
         string memory name,
-        address investmentToken
+        uint chainId,
+        address investmentToken,
+        address assetToken
     ) external onlyOwner {
         InvestmentAsset memory a = investmentAssets[id];
         require(a.investmentToken == address(0), "Id already taken");
         investmentAssets[id] = InvestmentAsset({
             id: id,
             name: name,
+            chainId: chainId,
             investmentToken: investmentToken,
+            assetToken: assetToken,
             isActive: true
         });
 
@@ -84,37 +93,38 @@ contract InvestorProfile is Roles {
         bytes32 userId,
         bytes32 assetId,
         uint tokenAmount,
-        uint usdAmount
+        uint assetAmount
     ) external onlyAdminOrOwner {
         InvestmentAsset memory a = investmentAssets[assetId];
         require(a.investmentToken != address(0), "Invalid asset id");
         Investor storage i = investors[userId];
         require(i.userId == bytes32(0), "Invalid user id");
-        i.investments[assetId] += tokenAmount;
-        i.portfolioValue += usdAmount;
+        i.investments[assetId].investmentAmount += tokenAmount;
+        i.investments[assetId].assetAmount += assetAmount;
 
-        emit UserInvested(userId, assetId, tokenAmount, usdAmount);
+        emit UserInvested(userId, assetId, tokenAmount, assetAmount);
     }
 
-    function withdrawUserInvestment(
-        bytes32 userId,
-        bytes32 assetId,
-        uint tokenAmount,
-        uint usdAmount
-    ) external onlyAdminOrOwner {
-        InvestmentAsset memory a = investmentAssets[assetId];
-        require(a.investmentToken != address(0), "Invalid asset id");
-        // require(a.investmentToken != address(0), "Invalid asset id");
-        Investor storage i = investors[userId];
-        require(i.userId == bytes32(0), "Invalid user id");
-        require(
-            i.investments[assetId] >= tokenAmount,
-            "Invalid withdraw amount"
-        );
-        require(i.portfolioValue >= usdAmount, "Invalid usd amount");
-        i.investments[assetId] -= tokenAmount;
-        i.portfolioValue -= usdAmount;
+    // function withdrawUserInvestment(
+    //     bytes32 userId,
+    //     bytes32 assetId,
+    //     uint investmentAmount,
+    //     uint assetAmount
+    // ) external onlyAdminOrOwner {
+    //     InvestmentAsset memory a = investmentAssets[assetId];
+    //     require(a.investmentToken != address(0), "Invalid asset id");
+    //     // require(a.investmentToken != address(0), "Invalid asset id");
+    //     Investor storage i = investors[userId];
+    //     require(i.userId == bytes32(0), "Invalid user id");
+    //     require(
+    //         i.investments[assetId].assetAmount >= assetAmount,
+    //         "Invalid withdraw amount"
+    //     );
+    //     require(
+    //         i.investments[assetId].investAmount >= assetAmount,
+    //         "Invalid withdraw amount"
+    //     );
 
-        emit UserWithdraw(userId, assetId, tokenAmount, usdAmount);
-    }
+    //     emit UserWithdraw(userId, assetId, tokenAmount, usdAmount);
+    // }
 }
