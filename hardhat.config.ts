@@ -1,6 +1,6 @@
 import { HardhatUserConfig } from "hardhat/config";
-import "@nomicfoundation/hardhat-toolbox";
 import "@oasisprotocol/sapphire-hardhat";
+import "@nomicfoundation/hardhat-toolbox";
 import "dotenv/config";
 
 import "hardhat-deploy";
@@ -11,6 +11,7 @@ import "@nomicfoundation/hardhat-ethers";
 import "@typechain/hardhat";
 import "hardhat-gas-reporter";
 import "solidity-coverage";
+
 
 const accounts = [process.env.PRIVATE_KEY as string];
 
