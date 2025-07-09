@@ -2,9 +2,13 @@
 pragma solidity ^0.8.20;
 
 import "./Roles.sol";
+import "./InvestorProfileParams.sol";
 
-contract InvestorProfile is Roles {
-    enum InvestmentCategory {
+contract InvestorProfile is Roles, InvestorProfileParams {
+    // we only deal with stable coins
+    uint constant UNITS = 1000_000;
+
+    enum AssetCategory {
         VC_SALE,
         SIGNALS,
         OTC_SALE,
@@ -13,29 +17,24 @@ contract InvestorProfile is Roles {
         YIELD_AGGREGATOR
     }
 
-    enum Tier {
-        SILVER,
-        GOLD,
-        PLATINUM
-    }
-
     struct Investment {
         uint investmentAmount;
         uint assetAmount;
     }
 
-    struct InvestorView {
-        bytes32 investorId;
-        Tier launchpadLoyalist;
-        Tier strategicSuit;
-        Tier nodeMaximalist;
-        Tier realworldRaider;
-        Tier otcOperator;
-        Tier signalSeeker;
+    struct Asset {
+        bytes32 id;
+        string name;
+        uint chainId;
+        bool isActive;
+        address assetToken;
+        address investmentToken;
+        AssetCategory category;
     }
 
     struct Investor {
         bytes32 investorId;
+        InvestorCategory category;
         uint otcInvestment;
         uint totalInvestment;
         uint vcSaleInvestment;
@@ -44,20 +43,16 @@ contract InvestorProfile is Roles {
         uint launchpadInvestment;
         uint publicSaleInvestment;
         uint yieldAggregatorInvestment;
+        string wallet;
+        string twitter;
+        string youtube;
+        string discord;
+        string telegram;
         // investment id => amount
         mapping(bytes32 => Investment) investments;
     }
 
-    struct InvestmentAsset {
-        bytes32 id;
-        string name;
-        uint chainId;
-        bool isActive;
-        address investmentToken;
-        InvestmentCategory category;
-        address assetToken;
-    }
-
+    event InvestorAdded(bytes32 id, InvestorCategory indexed category);
     event InvestorAssetAdded(bytes32 id, string name);
     event SetInvestorAsset(bytes32 id, bool isActive);
     event UserInvested(
@@ -73,19 +68,39 @@ contract InvestorProfile is Roles {
     );
 
     mapping(bytes32 => Investor) private investors;
-    mapping(bytes32 => InvestmentAsset) public investmentAssets;
+    mapping(bytes32 => Asset) public assets;
 
-    function addInvestmentOption(
+    function addInvestor(
+        AddInvestorParams memory params
+    ) external onlyAdminOrOwner {
+        require(
+            investors[params.investorId].investorId == bytes32(0),
+            "invalid investor id"
+        );
+
+        Investor storage newInvestor = investors[params.investorId];
+        newInvestor.investorId = params.investorId;
+        newInvestor.category = params.category;
+        newInvestor.wallet = params.wallet;
+        newInvestor.twitter = params.twitter;
+        newInvestor.youtube = params.youtube;
+        newInvestor.discord = params.discord;
+        newInvestor.telegram = params.telegram;
+        
+        emit InvestorAdded(params.investorId, params.category);
+    }
+
+    function addAssetOption(
         bytes32 id,
         string memory name,
         uint chainId,
         address investmentToken,
         address assetToken,
-        InvestmentCategory category
+        AssetCategory category
     ) external onlyOwner {
-        InvestmentAsset memory a = investmentAssets[id];
+        Asset memory a = assets[id];
         require(a.investmentToken == address(0), "Id already taken");
-        investmentAssets[id] = InvestmentAsset({
+        assets[id] = Asset({
             id: id,
             name: name,
             chainId: chainId,
@@ -99,9 +114,9 @@ contract InvestorProfile is Roles {
     }
 
     function setInvestmentOption(bytes32 id, bool enable) external onlyOwner {
-        InvestmentAsset memory a = investmentAssets[id];
-        require(a.investmentToken != address(0), "Invalid id");
-        investmentAssets[id].isActive = enable;
+        Asset memory asset = assets[id];
+        require(asset.investmentToken != address(0), "Invalid id");
+        assets[id].isActive = enable;
         emit SetInvestorAsset(id, enable);
     }
 
@@ -111,23 +126,24 @@ contract InvestorProfile is Roles {
         uint tokenAmount,
         uint assetAmount
     ) external onlyAdminOrOwner {
-        InvestmentAsset memory asset = investmentAssets[assetId];
+        Asset memory asset = assets[assetId];
         require(asset.investmentToken != address(0), "Invalid asset id");
         Investor storage investor = investors[investorId];
+        require(investor.investorId != bytes32(0), "invalid investor id");
         investor.investments[assetId].investmentAmount += tokenAmount;
         investor.investments[assetId].assetAmount += assetAmount;
 
-        if (asset.category == InvestmentCategory.NODE_SALE) {
+        if (asset.category == AssetCategory.NODE_SALE) {
             investor.nodeSaleInvestment += tokenAmount;
-        } else if (asset.category == InvestmentCategory.VC_SALE) {
+        } else if (asset.category == AssetCategory.VC_SALE) {
             investor.vcSaleInvestment += tokenAmount;
-        } else if (asset.category == InvestmentCategory.PUBLIC_SALE) {
+        } else if (asset.category == AssetCategory.PUBLIC_SALE) {
             investor.publicSaleInvestment += tokenAmount;
-        } else if (asset.category == InvestmentCategory.OTC_SALE) {
+        } else if (asset.category == AssetCategory.OTC_SALE) {
             investor.otcInvestment += tokenAmount;
-        } else if (asset.category == InvestmentCategory.SIGNALS) {
+        } else if (asset.category == AssetCategory.SIGNALS) {
             investor.signalsInvestment += tokenAmount;
-        } else if (asset.category == InvestmentCategory.YIELD_AGGREGATOR) {
+        } else if (asset.category == AssetCategory.YIELD_AGGREGATOR) {
             investor.yieldAggregatorInvestment += tokenAmount;
         }
 
@@ -140,49 +156,48 @@ contract InvestorProfile is Roles {
         bytes32 investorId
     ) external view returns (InvestorView memory iview) {
         Investor storage investor = investors[investorId];
+        require(investor.investorId != bytes32(0), "invalid investor id");
         iview.investorId = investor.investorId;
 
-        uint uints = 10 ** 6;
-
-        // if (investor.signalsInvestment > 2_000 * uints) {
+        // if (investor.signalsInvestment > 2_000 * UNITS) {
         iview.signalSeeker = Tier.SILVER;
         // }
 
-        if (investor.otcInvestment >= 10_000 * uints) {
+        if (investor.otcInvestment >= 10_000 * UNITS) {
             iview.otcOperator = Tier.PLATINUM;
-        } else if (investor.otcInvestment >= 1_000 * uints) {
+        } else if (investor.otcInvestment >= 1_000 * UNITS) {
             iview.otcOperator = Tier.GOLD;
         } else {
             iview.otcOperator = Tier.SILVER;
         }
 
-        if (investor.yieldAggregatorInvestment >= 10_000 * uints) {
+        if (investor.yieldAggregatorInvestment >= 10_000 * UNITS) {
             iview.realworldRaider = Tier.PLATINUM;
-        } else if (investor.yieldAggregatorInvestment >= 1_000 * uints) {
+        } else if (investor.yieldAggregatorInvestment >= 1_000 * UNITS) {
             iview.realworldRaider = Tier.GOLD;
         } else {
             iview.realworldRaider = Tier.SILVER;
         }
 
-        if (investor.nodeSaleInvestment >= 10_000 * uints) {
+        if (investor.nodeSaleInvestment >= 10_000 * UNITS) {
             iview.nodeMaximalist = Tier.PLATINUM;
-        } else if (investor.nodeSaleInvestment >= 1_000 * uints) {
+        } else if (investor.nodeSaleInvestment >= 1_000 * UNITS) {
             iview.nodeMaximalist = Tier.GOLD;
         } else {
             iview.nodeMaximalist = Tier.SILVER;
         }
 
-        if (investor.vcSaleInvestment >= 25_000 * uints) {
+        if (investor.vcSaleInvestment >= 25_000 * UNITS) {
             iview.strategicSuit = Tier.PLATINUM;
-        } else if (investor.vcSaleInvestment >= 5_000 * uints) {
+        } else if (investor.vcSaleInvestment >= 5_000 * UNITS) {
             iview.strategicSuit = Tier.GOLD;
         } else {
             iview.strategicSuit = Tier.SILVER;
         }
 
-        if (investor.publicSaleInvestment >= 10_000 * uints) {
+        if (investor.publicSaleInvestment >= 10_000 * UNITS) {
             iview.launchpadLoyalist = Tier.PLATINUM;
-        } else if (investor.publicSaleInvestment >= 1_000 * uints) {
+        } else if (investor.publicSaleInvestment >= 1_000 * UNITS) {
             iview.launchpadLoyalist = Tier.GOLD;
         } else {
             iview.launchpadLoyalist = Tier.SILVER;
@@ -194,7 +209,7 @@ contract InvestorProfile is Roles {
         bytes32 assetId,
         uint assetAmount
     ) external onlyAdminOrOwner {
-        InvestmentAsset memory asset = investmentAssets[assetId];
+        Asset memory asset = assets[assetId];
         require(asset.investmentToken != address(0), "Invalid asset id");
         Investor storage i = investors[investorId];
 
