@@ -9,6 +9,7 @@ const deploy: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     await deployments.deploy("InvestorProfile", {
         from: deployer,
         log: true,
+        args: [deployer]
     });
 };
 

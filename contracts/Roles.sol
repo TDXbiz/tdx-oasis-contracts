@@ -3,8 +3,8 @@ pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract Roles is Ownable {
-    constructor() Ownable(msg.sender) {}
+abstract contract Roles is Ownable {
+    constructor(address _owner) Ownable(_owner) {}
 
     mapping(address => bool) private admins;
 

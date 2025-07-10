@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.20;
 
-contract InvestorProfileParams {
+abstract contract InvestorProfileParams {
     enum InvestorCategory {
         CONSERVATIVE,
         BALANCED,

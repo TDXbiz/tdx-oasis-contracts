@@ -8,6 +8,8 @@ contract InvestorProfile is Roles, InvestorProfileParams {
     // we only deal with stable coins
     uint constant UNITS = 1000_000;
 
+    constructor(address _owner) Roles(_owner) {}
+
     enum AssetCategory {
         VC_SALE,
         SIGNALS,
@@ -86,7 +88,7 @@ contract InvestorProfile is Roles, InvestorProfileParams {
         newInvestor.youtube = params.youtube;
         newInvestor.discord = params.discord;
         newInvestor.telegram = params.telegram;
-        
+
         emit InvestorAdded(params.investorId, params.category);
     }
 
