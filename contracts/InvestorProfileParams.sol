@@ -25,6 +25,16 @@ abstract contract InvestorProfileParams {
         string telegram;
     }
 
+    struct UpdateInvestorParams {
+        bytes32 investorId;
+        InvestorCategory category;
+        string wallet;
+        string twitter;
+        string youtube;
+        string discord;
+        string telegram;
+    }
+
     struct InvestorView {
         bytes32 investorId;
         Tier otcOperator;

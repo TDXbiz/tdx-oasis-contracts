@@ -6,7 +6,7 @@ import "./InvestorProfileParams.sol";
 
 contract InvestorProfile is Roles, InvestorProfileParams {
     // we only deal with stable coins
-    uint constant UNITS = 1000_000;
+    uint public constant UNITS = 1_000_000;
 
     constructor(address _owner) Roles(_owner) {}
 
@@ -55,6 +55,7 @@ contract InvestorProfile is Roles, InvestorProfileParams {
     }
 
     event InvestorAdded(bytes32 id, InvestorCategory indexed category);
+    event InvestorUpdated(bytes32 id, InvestorCategory indexed category);
     event InvestorAssetAdded(bytes32 id, string name);
     event SetInvestorAsset(bytes32 id, bool isActive);
     event UserInvested(
@@ -159,6 +160,7 @@ contract InvestorProfile is Roles, InvestorProfileParams {
     ) external view returns (InvestorView memory iview) {
         Investor storage investor = investors[investorId];
         require(investor.investorId != bytes32(0), "invalid investor id");
+        iview.category = investor.category;
         iview.investorId = investor.investorId;
 
         // if (investor.signalsInvestment > 2_000 * UNITS) {
@@ -222,5 +224,25 @@ contract InvestorProfile is Roles, InvestorProfileParams {
         i.investments[assetId].assetAmount -= assetAmount;
 
         emit UserWithdraw(investorId, assetId, assetAmount);
+    }
+
+    function updateInvestorDetails(
+        UpdateInvestorParams memory params
+    ) external onlyAdminOrOwner {
+        require(
+            investors[params.investorId].investorId != bytes32(0),
+            "invalid investor id"
+        );
+
+        Investor storage newInvestor = investors[params.investorId];
+        newInvestor.investorId = params.investorId;
+        newInvestor.category = params.category;
+        newInvestor.wallet = params.wallet;
+        newInvestor.twitter = params.twitter;
+        newInvestor.youtube = params.youtube;
+        newInvestor.discord = params.discord;
+        newInvestor.telegram = params.telegram;
+
+        emit InvestorUpdated(params.investorId, params.category);
     }
 }
