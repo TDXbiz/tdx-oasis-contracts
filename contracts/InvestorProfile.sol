@@ -102,7 +102,7 @@ contract InvestorProfile is Roles, InvestorProfileParams {
         AssetCategory category
     ) external onlyOwner {
         Asset memory a = assets[id];
-        require(a.investmentToken == address(0), "Id already taken");
+        require(a.investmentToken == address(0), "id already taken");
         assets[id] = Asset({
             id: id,
             name: name,
@@ -130,7 +130,7 @@ contract InvestorProfile is Roles, InvestorProfileParams {
         uint assetAmount
     ) external onlyAdminOrOwner {
         Asset memory asset = assets[assetId];
-        require(asset.investmentToken != address(0), "Invalid asset id");
+        require(asset.isActive, "Invalid asset id");
         Investor storage investor = investors[investorId];
         require(investor.investorId != bytes32(0), "invalid investor id");
         investor.investments[assetId].investmentAmount += tokenAmount;

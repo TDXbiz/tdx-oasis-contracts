@@ -17,7 +17,7 @@ abstract contract Roles is Ownable {
 
     function _onlyAdminOrOwner() internal view {
         address user = _msgSender();
-        require(admins[user] || (owner() == user), "Roles: Not allowed");
+        require(admins[user] || (owner() == user), "unauthorized caller");
     }
 
     modifier onlyAdminOrOwner() {
