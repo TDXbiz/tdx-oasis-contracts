@@ -1,14 +1,20 @@
-import { deployments, ethers, getNamedAccounts } from "hardhat";
-import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { InvestorProfile } from "../typechain-types";
+import { deployments, ethers, getNamedAccounts, upgrades } from "hardhat";
+import { InvestorProfile__factory } from "../typechain-types";
 
 export const setUpTest = deployments.createFixture(async () => {
     await deployments.fixture();
 
     const { deployer, alice, bob } = await getNamedAccounts();
-    const investorProfile = (await ethers.getContract(
+    const profileFactory = (await ethers.getContractFactory(
         "InvestorProfile"
-    )) as InvestorProfile;
+    )) as unknown as InvestorProfile__factory;
+
+    const profile = await upgrades.deployProxy(profileFactory, [deployer], {
+        initializer: "initialize",
+        kind: "uups",
+    });
+
+    const investorProfile = await profile.waitForDeployment();
 
     enum InvestorCategory {
         CONSERVATIVE,
