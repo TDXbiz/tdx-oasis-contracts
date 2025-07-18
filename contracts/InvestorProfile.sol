@@ -90,6 +90,18 @@ contract InvestorProfile is
     function addInvestor(
         AddInvestorParams memory params
     ) external onlyRole(DATA_MANAGER) {
+        _addInvestor(params);
+    }
+
+    function addInvestors(
+        AddInvestorParams[] memory data
+    ) external onlyRole(DATA_MANAGER) {
+        for (uint i = 0; i < data.length; i++) {
+            _addInvestor(data[i]);
+        }
+    }
+
+    function _addInvestor(AddInvestorParams memory params) internal {
         require(
             investors[params.investorId].investorId == bytes32(0),
             "invalid investor id"
@@ -103,7 +115,6 @@ contract InvestorProfile is
         newInvestor.youtube = params.youtube;
         newInvestor.discord = params.discord;
         newInvestor.telegram = params.telegram;
-
         emit InvestorAdded(params.investorId, params.category);
     }
 
