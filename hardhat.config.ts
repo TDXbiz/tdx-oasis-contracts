@@ -9,6 +9,7 @@ import "hardhat-deploy-ethers";
 
 import "@nomicfoundation/hardhat-chai-matchers";
 import "@nomicfoundation/hardhat-ethers";
+import "@nomicfoundation/hardhat-verify";
 import "@typechain/hardhat";
 import "hardhat-gas-reporter";
 import "solidity-coverage";
@@ -38,6 +39,14 @@ const config: HardhatUserConfig = {
     },
 
     gasReporter: {
+        enabled: true,
+    },
+
+    etherscan: {
+        enabled: false,
+    },
+
+    sourcify: {
         enabled: true,
     },
 };
