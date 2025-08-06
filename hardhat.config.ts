@@ -1,22 +1,23 @@
 import { HardhatUserConfig } from "hardhat/config";
 import "@oasisprotocol/sapphire-hardhat";
-import "@nomicfoundation/hardhat-toolbox";
 import "dotenv/config";
 
+import "@openzeppelin/hardhat-upgrades";
+
 import "hardhat-deploy";
-import "hardhat-deploy-ethers"
+import "hardhat-deploy-ethers";
 
 import "@nomicfoundation/hardhat-chai-matchers";
 import "@nomicfoundation/hardhat-ethers";
+import "@nomicfoundation/hardhat-verify";
 import "@typechain/hardhat";
 import "hardhat-gas-reporter";
 import "solidity-coverage";
 
-
 const accounts = [process.env.PRIVATE_KEY as string];
 
 const config: HardhatUserConfig = {
-    solidity: "0.8.20",
+    solidity: "0.8.22",
 
     networks: {
         sapphire: {
@@ -38,6 +39,14 @@ const config: HardhatUserConfig = {
     },
 
     gasReporter: {
+        enabled: true,
+    },
+
+    etherscan: {
+        enabled: false,
+    },
+
+    sourcify: {
         enabled: true,
     },
 };

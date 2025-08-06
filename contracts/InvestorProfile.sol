@@ -1,14 +1,28 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.22;
 
-import "./Roles.sol";
 import "./InvestorProfileParams.sol";
 
-contract InvestorProfile is Roles, InvestorProfileParams {
+import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+
+contract InvestorProfile is
+    UUPSUpgradeable,
+    InvestorProfileParams,
+    AccessControlUpgradeable
+{
     // we only deal with stable coins
     uint public constant UNITS = 1_000_000;
 
-    constructor(address _owner) Roles(_owner) {}
+    bytes32 public constant DATA_MANAGER = bytes32("DATA_MANAGER");
+
+    function initialize(address _owner) external initializer {
+        __UUPSUpgradeable_init();
+        __AccessControl_init();
+
+        _grantRole(DEFAULT_ADMIN_ROLE, _owner);
+        _grantRole(DATA_MANAGER, _owner);
+    }
 
     enum AssetCategory {
         VC_SALE,
@@ -75,7 +89,19 @@ contract InvestorProfile is Roles, InvestorProfileParams {
 
     function addInvestor(
         AddInvestorParams memory params
-    ) external onlyAdminOrOwner {
+    ) external onlyRole(DATA_MANAGER) {
+        _addInvestor(params);
+    }
+
+    function addInvestors(
+        AddInvestorParams[] memory data
+    ) external onlyRole(DATA_MANAGER) {
+        for (uint i = 0; i < data.length; i++) {
+            _addInvestor(data[i]);
+        }
+    }
+
+    function _addInvestor(AddInvestorParams memory params) internal {
         require(
             investors[params.investorId].investorId == bytes32(0),
             "invalid investor id"
@@ -89,7 +115,6 @@ contract InvestorProfile is Roles, InvestorProfileParams {
         newInvestor.youtube = params.youtube;
         newInvestor.discord = params.discord;
         newInvestor.telegram = params.telegram;
-
         emit InvestorAdded(params.investorId, params.category);
     }
 
@@ -100,7 +125,7 @@ contract InvestorProfile is Roles, InvestorProfileParams {
         address investmentToken,
         address assetToken,
         AssetCategory category
-    ) external onlyOwner {
+    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
         Asset memory a = assets[id];
         require(a.investmentToken == address(0), "id already taken");
         assets[id] = Asset({
@@ -116,7 +141,10 @@ contract InvestorProfile is Roles, InvestorProfileParams {
         emit InvestorAssetAdded(id, name);
     }
 
-    function setInvestmentOption(bytes32 id, bool enable) external onlyOwner {
+    function setInvestmentOption(
+        bytes32 id,
+        bool enable
+    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
         Asset memory asset = assets[id];
         require(asset.investmentToken != address(0), "Invalid id");
         assets[id].isActive = enable;
@@ -128,7 +156,7 @@ contract InvestorProfile is Roles, InvestorProfileParams {
         bytes32 assetId,
         uint tokenAmount,
         uint assetAmount
-    ) external onlyAdminOrOwner {
+    ) external onlyRole(DATA_MANAGER) {
         Asset memory asset = assets[assetId];
         require(asset.isActive, "Invalid asset id");
         Investor storage investor = investors[investorId];
@@ -212,7 +240,7 @@ contract InvestorProfile is Roles, InvestorProfileParams {
         bytes32 investorId,
         bytes32 assetId,
         uint assetAmount
-    ) external onlyAdminOrOwner {
+    ) external onlyRole(DATA_MANAGER) {
         Asset memory asset = assets[assetId];
         require(asset.investmentToken != address(0), "Invalid asset id");
         Investor storage i = investors[investorId];
@@ -228,7 +256,7 @@ contract InvestorProfile is Roles, InvestorProfileParams {
 
     function updateInvestorDetails(
         UpdateInvestorParams memory params
-    ) external onlyAdminOrOwner {
+    ) external onlyRole(DATA_MANAGER) {
         require(
             investors[params.investorId].investorId != bytes32(0),
             "invalid investor id"
@@ -245,4 +273,8 @@ contract InvestorProfile is Roles, InvestorProfileParams {
 
         emit InvestorUpdated(params.investorId, params.category);
     }
+
+    function _authorizeUpgrade(
+        address newImplementation
+    ) internal virtual override onlyRole(DEFAULT_ADMIN_ROLE) {}
 }

@@ -1,12 +1,14 @@
 import { expect } from "chai";
-import { setUpTest } from "./setUp";
+import { setUpTest, setUpAdmin } from "./setUp";
 import { ethers } from "hardhat";
 
 describe("InvestorProfile", () => {
     it(".. should deploy the contracts perfectly", async () => {
         const { investorProfile, deployer } = await setUpTest();
 
-        expect(await investorProfile.owner()).to.equal(deployer);
+        const role = await investorProfile.DEFAULT_ADMIN_ROLE();
+
+        expect(await investorProfile.hasRole(role, deployer)).to.be.true;
 
         expect(await investorProfile.UNITS()).to.equal(10 ** 6);
     });
@@ -100,11 +102,11 @@ describe("InvestorProfile", () => {
 
         const signer = await ethers.getSigner(alice);
 
-        await expect(
-            investorProfile.connect(signer).addInvestor(params)
-        ).to.be.revertedWith("unauthorized caller");
+        await expect(investorProfile.connect(signer).addInvestor(params)).to.be
+            .reverted;
 
-        await investorProfile.setAdmin(alice, true);
+        const role = await investorProfile.DATA_MANAGER();
+        await investorProfile.grantRole(role, alice);
 
         await expect(
             investorProfile.connect(signer).addInvestor(params)
@@ -244,7 +246,8 @@ describe("InvestorProfile", () => {
         );
 
         const signer = await ethers.getNamedSigner("alice");
-        await investorProfile.setAdmin(signer.address, true);
+        const role = await investorProfile.DATA_MANAGER();
+        await investorProfile.grantRole(role, signer.address);
         const investorId = ethers.encodeBytes32String("USER_ID");
         const TWITTER = "https://x.com/userId";
         const YOUTUBE = "https://youtube.com/@userId";
@@ -304,11 +307,11 @@ describe("InvestorProfile", () => {
 
         const signer = await ethers.getSigner(alice);
 
-        await expect(
-            investorProfile.connect(signer).addInvestor(params)
-        ).to.be.revertedWith("unauthorized caller");
+        await expect(investorProfile.connect(signer).addInvestor(params)).to.be
+            .reverted;
 
-        await investorProfile.setAdmin(alice, true);
+        const role = await investorProfile.DATA_MANAGER();
+        await investorProfile.grantRole(role, signer.address);
 
         await expect(
             investorProfile.connect(signer).updateInvestorDetails(params)
@@ -351,7 +354,8 @@ describe("InvestorProfile", () => {
         );
 
         const signer = await ethers.getNamedSigner("alice");
-        await investorProfile.setAdmin(signer.address, true);
+        const role = await investorProfile.DATA_MANAGER();
+        await investorProfile.grantRole(role, signer.address);
         const investorId = ethers.encodeBytes32String("USER_ID");
 
         const params = {

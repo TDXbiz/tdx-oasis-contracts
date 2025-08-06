@@ -2,15 +2,20 @@ import { DeployFunction } from "hardhat-deploy/dist/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 
 const deploy: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
-    const { getNamedAccounts, deployments } = hre;
+    const { getNamedAccounts, upgrades, ethers } = hre;
 
     const { deployer } = await getNamedAccounts();
 
-    await deployments.deploy("InvestorProfile", {
-        from: deployer,
-        log: true,
-        args: [deployer]
+    const profileFactory = await ethers.getContractFactory("InvestorProfile");
+
+    const profile = await upgrades.deployProxy(profileFactory, [deployer], {
+        initializer: "initialize",
+        kind: "uups",
     });
+
+    await profile.waitForDeployment();
+
+    console.log("Investor Profile deployed at: ", profile.target);
 };
 
 deploy.tags = ["InvestorProfile"];
