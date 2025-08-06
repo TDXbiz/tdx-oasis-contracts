@@ -17,7 +17,22 @@ import "solidity-coverage";
 const accounts = [process.env.PRIVATE_KEY as string];
 
 const config: HardhatUserConfig = {
-    solidity: "0.8.22",
+    solidity: {
+        compilers: [
+          {
+            version: "0.8.29",
+            settings: { optimizer: { enabled: true, runs: 200 } }
+          },
+          {
+            version: "0.8.22",
+            settings: { optimizer: { enabled: false } }
+          }
+        ],
+        overrides: {
+          "contracts/InvestorProfile.sol":       { version: "0.8.22" },
+          "contracts/InvestorProfileParams.sol": { version: "0.8.22" }
+        }
+    },
 
     networks: {
         sapphire: {
