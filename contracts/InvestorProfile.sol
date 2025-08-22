@@ -84,7 +84,7 @@ contract InvestorProfile is
         uint assetAmount
     );
 
-    mapping(bytes32 => Investor) private investors;
+    mapping(bytes32 => Investor) internal investors;
     mapping(bytes32 => Asset) public assets;
 
     function addInvestor(
@@ -101,7 +101,7 @@ contract InvestorProfile is
         }
     }
 
-    function _addInvestor(AddInvestorParams memory params) internal {
+    function _addInvestor(AddInvestorParams memory params) internal virtual {
         require(
             investors[params.investorId].investorId == bytes32(0),
             "invalid investor id"
