@@ -346,6 +346,345 @@
           ]
         }
       }
+    },
+     "0x8cc4688d6528d96fd571001480a0e166914f877975399825532ac607312896c0": {
+      "address": "0x36589124650Ca0457b709d033f13ce7E884d6BC6",
+      "txHash": "0xfde98734c3970c63e0beefeaf7769c0c201e7caf3844b3d672d1c1835c538f14",
+      "layout": {
+        "solcVersion": "0.8.29",
+        "storage": [
+          {
+            "label": "investors",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_mapping(t_bytes32,t_struct(Investor)1843_storage)",
+            "contract": "InvestorProfile",
+            "src": "contracts\\InvestorProfile.sol:87"
+          },
+          {
+            "label": "assets",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_mapping(t_bytes32,t_struct(Asset)1806_storage)",
+            "contract": "InvestorProfile",
+            "src": "contracts\\InvestorProfile.sol:88"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_bytes32": {
+            "label": "bytes32",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_struct(RoleData)25_storage)": {
+            "label": "mapping(bytes32 => struct AccessControlUpgradeable.RoleData)",
+            "numberOfBytes": "32"
+          },
+          "t_struct(AccessControlStorage)35_storage": {
+            "label": "struct AccessControlUpgradeable.AccessControlStorage",
+            "members": [
+              {
+                "label": "_roles",
+                "type": "t_mapping(t_bytes32,t_struct(RoleData)25_storage)",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(InitializableStorage)161_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(RoleData)25_storage": {
+            "label": "struct AccessControlUpgradeable.RoleData",
+            "members": [
+              {
+                "label": "hasRole",
+                "type": "t_mapping(t_address,t_bool)",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "adminRole",
+                "type": "t_bytes32",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_enum(AssetCategory)1785": {
+            "label": "enum InvestorProfile.AssetCategory",
+            "members": [
+              "VC_SALE",
+              "SIGNALS",
+              "OTC_SALE",
+              "NODE_SALE",
+              "PUBLIC_SALE",
+              "YIELD_AGGREGATOR"
+            ],
+            "numberOfBytes": "1"
+          },
+          "t_enum(InvestorCategory)2687": {
+            "label": "enum InvestorProfileParams.InvestorCategory",
+            "members": [
+              "CONSERVATIVE",
+              "BALANCED",
+              "AGGRESIVE",
+              "HIGHRISK"
+            ],
+            "numberOfBytes": "1"
+          },
+          "t_mapping(t_bytes32,t_struct(Asset)1806_storage)": {
+            "label": "mapping(bytes32 => struct InvestorProfile.Asset)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_struct(Investment)1790_storage)": {
+            "label": "mapping(bytes32 => struct InvestorProfile.Investment)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_struct(Investor)1843_storage)": {
+            "label": "mapping(bytes32 => struct InvestorProfile.Investor)",
+            "numberOfBytes": "32"
+          },
+          "t_string_storage": {
+            "label": "string",
+            "numberOfBytes": "32"
+          },
+          "t_struct(Asset)1806_storage": {
+            "label": "struct InvestorProfile.Asset",
+            "members": [
+              {
+                "label": "id",
+                "type": "t_bytes32",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "name",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "chainId",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "isActive",
+                "type": "t_bool",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "assetToken",
+                "type": "t_address",
+                "offset": 1,
+                "slot": "3"
+              },
+              {
+                "label": "investmentToken",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "4"
+              },
+              {
+                "label": "category",
+                "type": "t_enum(AssetCategory)1785",
+                "offset": 20,
+                "slot": "4"
+              }
+            ],
+            "numberOfBytes": "160"
+          },
+          "t_struct(Investment)1790_storage": {
+            "label": "struct InvestorProfile.Investment",
+            "members": [
+              {
+                "label": "investmentAmount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "assetAmount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_struct(Investor)1843_storage": {
+            "label": "struct InvestorProfile.Investor",
+            "members": [
+              {
+                "label": "investorId",
+                "type": "t_bytes32",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "category",
+                "type": "t_enum(InvestorCategory)2687",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "otcInvestment",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "totalInvestment",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "vcSaleInvestment",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "4"
+              },
+              {
+                "label": "signalsInvestment",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "5"
+              },
+              {
+                "label": "nodeSaleInvestment",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "6"
+              },
+              {
+                "label": "launchpadInvestment",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "7"
+              },
+              {
+                "label": "publicSaleInvestment",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "8"
+              },
+              {
+                "label": "yieldAggregatorInvestment",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "9"
+              },
+              {
+                "label": "wallet",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "10"
+              },
+              {
+                "label": "twitter",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "11"
+              },
+              {
+                "label": "youtube",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "12"
+              },
+              {
+                "label": "discord",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "13"
+              },
+              {
+                "label": "telegram",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "14"
+              },
+              {
+                "label": "investments",
+                "type": "t_mapping(t_bytes32,t_struct(Investment)1790_storage)",
+                "offset": 0,
+                "slot": "15"
+              }
+            ],
+            "numberOfBytes": "512"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.AccessControl": [
+            {
+              "contract": "AccessControlUpgradeable",
+              "label": "_roles",
+              "type": "t_mapping(t_bytes32,t_struct(RoleData)25_storage)",
+              "src": "@openzeppelin\\contracts-upgradeable\\access\\AccessControlUpgradeable.sol:61",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
     }
   }
 }
