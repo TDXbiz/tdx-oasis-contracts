@@ -6,14 +6,15 @@ const main = async () => {
     const newOwner = "0x8BA52eCB5573ACF5265184D80450272bd265604E";
     const contractAddress = "0x487C47491D2224c02324576A83d864FAD7396591";
     const [signer, _] = await ethers.getSigners();
-
     const profile = InvestorProfile__factory.connect(contractAddress, signer);
 
-    const role = await profile.DATA_MANAGER();
-
+    const role = await profile.DEFAULT_ADMIN_ROLE();
     console.log("Role to transfer:", role);
-
-    const tx = await profile.grantRole(role, newOwner);
+    // grant role
+    let tx = await profile.grantRole(role, newOwner);
+    await tx.wait(1);
+    // revoke super admin role
+    tx = await profile.revokeRole(role, signer.address);
     await tx.wait(1);
 
     return tx.hash;

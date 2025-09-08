@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { setUpTest, setUpAdmin } from "./setUp";
+import { setUpTest } from "./setUp";
 import { ethers } from "hardhat";
 
 describe("InvestorProfile", () => {
