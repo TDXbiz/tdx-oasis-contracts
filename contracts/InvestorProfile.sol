@@ -256,7 +256,7 @@ contract InvestorProfile is
 
     function updateInvestorDetails(
         UpdateInvestorParams memory params
-    ) external onlyRole(DATA_MANAGER) {
+    ) external virtual onlyRole(DATA_MANAGER) {
         require(
             investors[params.investorId].investorId != bytes32(0),
             "invalid investor id"
