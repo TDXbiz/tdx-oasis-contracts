@@ -17,6 +17,12 @@ contract InvestorProfileV3 is InvestorProfileV2 {
 
     mapping(bytes32 => string) internal kycIds;
 
+    function addInvestor(
+        InvestorParamsV3 memory params
+    ) external virtual onlyRole(DATA_MANAGER) {
+        _addInvestor(params);
+    }
+
     function _addInvestor(InvestorParamsV3 memory params) internal virtual {
         require(
             investors[params.investorId].investorId == bytes32(0),
