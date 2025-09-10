@@ -1388,7 +1388,11 @@
             }
           ]
         }
-      }
+      },
+      "allAddresses": [
+        "0xf6256202F75E2AAf3f60542c0dB27ADaab264638",
+        "0x48fEe5976Ee7a882a50E775e96661713C3dc3Efe"
+      ]
     }
   }
 }

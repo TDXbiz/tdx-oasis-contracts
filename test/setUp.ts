@@ -48,3 +48,22 @@ export const setUpTest = deployments.createFixture(async () => {
         InvestorCategory,
     };
 });
+
+export const setUpTestV3 = deployments.createFixture(async () => {
+    const obj = await setUpTest();
+    const profileFactory = (await ethers.getContractFactory(
+        "InvestorProfile"
+    )) as unknown as InvestorProfile__factory;
+
+    const profile = await upgrades.deployProxy(profileFactory, [obj.deployer], {
+        initializer: "initialize",
+        kind: "uups",
+    });
+
+    const investorProfile = await profile.waitForDeployment();
+
+    return {
+        ...obj,
+        investorProfile,
+    };
+});
