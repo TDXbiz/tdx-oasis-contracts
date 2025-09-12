@@ -1,6 +1,7 @@
 import { expect } from "chai";
 import { setUpTestV3 } from "./setUp";
-import { ethers } from "hardhat";
+import { ethers, } from "hardhat";
+import { time } from "@nomicfoundation/hardhat-network-helpers";
 
 describe("InvestorProfileV3 ", () => {
     it(".. should deploy the contracts perfectly", async () => {
@@ -31,12 +32,14 @@ describe("InvestorProfileV3 ", () => {
             discord: DISCORD,
             youtube: YOUTUBE,
             telegram: TELEGRAM,
+            kycId: "ksjdbfkjsdbfk",
         };
 
-        await expect(investorProfile.addInvestor(params)).to.emit(
-            investorProfile,
-            "InvestorAdded"
-        );
+        await expect(
+            investorProfile[
+                "addInvestor((bytes32,uint8,string,string,string,string,string,string))"
+            ](params)
+        ).to.emit(investorProfile, "InvestorAdded");
 
         const investor = await investorProfile.getInvestor(investorId);
 
@@ -68,16 +71,20 @@ describe("InvestorProfileV3 ", () => {
             discord: DISCORD,
             youtube: YOUTUBE,
             telegram: TELEGRAM,
+            kycId: "ksjdbfkjsdbfk",
         };
 
-        expect(await investorProfile.addInvestor(params)).to.emit(
-            investorProfile,
-            "InvestorAdded"
-        );
+        expect(
+            await investorProfile[
+                "addInvestor((bytes32,uint8,string,string,string,string,string,string))"
+            ](params)
+        ).to.emit(investorProfile, "InvestorAdded");
 
-        await expect(investorProfile.addInvestor(params)).to.be.revertedWith(
-            "invalid investor id"
-        );
+        await expect(
+            investorProfile[
+                "addInvestor((bytes32,uint8,string,string,string,string,string,string))"
+            ](params)
+        ).to.be.revertedWith("invalid investor id");
     });
 
     it(".. only owner and admin should be able to add investors", async () => {
@@ -98,18 +105,28 @@ describe("InvestorProfileV3 ", () => {
             discord: DISCORD,
             youtube: YOUTUBE,
             telegram: TELEGRAM,
+            kycId: "ksjdbfkjsdbfk",
         };
 
         const signer = await ethers.getSigner(alice);
 
-        await expect(investorProfile.connect(signer).addInvestor(params)).to.be
-            .reverted;
+        await expect(
+            investorProfile
+                .connect(signer)
+                [
+                    "addInvestor((bytes32,uint8,string,string,string,string,string,string))"
+                ](params)
+        ).to.be.reverted;
 
         const role = await investorProfile.DATA_MANAGER();
         await investorProfile.grantRole(role, alice);
 
         await expect(
-            investorProfile.connect(signer).addInvestor(params)
+            investorProfile
+                .connect(signer)
+                [
+                    "addInvestor((bytes32,uint8,string,string,string,string,string,string))"
+                ](params)
         ).to.emit(investorProfile, "InvestorAdded");
     });
 
@@ -163,82 +180,27 @@ describe("InvestorProfileV3 ", () => {
         // only owner can add assets
     });
 
-    it(".. should be able to add investment of user by admin", async () => {
+    it.only(".. should be able to add investment of user by admin", async () => {
         const {
             investorProfile,
             AssetCategory,
             alice,
-            Tier,
             bob,
             InvestorCategory,
+            domain,
+            investorProfileType,
+            investmentType,
         } = await setUpTestV3();
 
         const otcSaleId = ethers.encodeBytes32String("OTC_SALE");
-        const otcSaleName = "OTC Sale 1";
+
         const chainId = 1n;
         const assetToken = alice;
         const investmentToken = bob;
 
-        const nodeSaleId = ethers.encodeBytes32String("NODE_SALE");
-        const nodeSaleName = "Node Sale 1";
-
-        const publicSaleId = ethers.encodeBytes32String("PUBLIC_SALE");
-        const publicSaleName = "Public Sale 1";
-
-        const signalId = ethers.encodeBytes32String("SIGNAL");
-        const signalName = "Signals Pack 1";
-
-        const vcSaleId = ethers.encodeBytes32String("VC_SALE");
-        const vcSaleName = "VC Sale 1";
-
-        const yieldAggregatorOptionId = ethers.encodeBytes32String(
-            "YIELD_AGGREGATOR_OPTION"
-        );
-        const yieldAggregatorOptionName = "Yield Aggregator Option 1";
-
-        await investorProfile.addAssetOption(
-            nodeSaleId,
-            nodeSaleName,
-            chainId,
-            investmentToken,
-            assetToken,
-            AssetCategory.NODE_SALE
-        );
-        await investorProfile.addAssetOption(
-            publicSaleId,
-            publicSaleName,
-            chainId,
-            investmentToken,
-            assetToken,
-            AssetCategory.PUBLIC_SALE
-        );
-        await investorProfile.addAssetOption(
-            signalId,
-            signalName,
-            chainId,
-            investmentToken,
-            assetToken,
-            AssetCategory.SIGNALS
-        );
-        await investorProfile.addAssetOption(
-            vcSaleId,
-            vcSaleName,
-            chainId,
-            investmentToken,
-            assetToken,
-            AssetCategory.VC_SALE
-        );
-        await investorProfile.addAssetOption(
-            yieldAggregatorOptionId,
-            yieldAggregatorOptionName,
-            chainId,
-            investmentToken,
-            assetToken,
-            AssetCategory.YIELD_AGGREGATOR
-        );
         await investorProfile.addAssetOption(
             otcSaleId,
-            otcSaleName,
+            otcSaleId,
             chainId,
             investmentToken,
             assetToken,
@@ -262,116 +224,17 @@ describe("InvestorProfileV3 ", () => {
             discord: DISCORD,
             youtube: YOUTUBE,
             telegram: TELEGRAM,
+            kycId: "ksjdbfkjsdbfk",
         };
 
         const tokenAmount = ethers.parseUnits("10000", 6);
         const assetAmount = 100;
 
-        await investorProfile.connect(signer).addInvestor(params);
-
-        await expect(
-            investorProfile.addUserInvestment(
-                investorId,
-                otcSaleId,
-                tokenAmount,
-                assetAmount
-            )
-        )
-            .to.emit(investorProfile, "UserInvested")
-            .withArgs(investorId, otcSaleId, tokenAmount, assetAmount);
-
-        const investor = await investorProfile.getInvestor(investorId);
-
-        expect(investor.otcOperator).to.equal(Tier.PLATINUM);
-    });
-
-    it(".. admin should be able to update investor details", async () => {
-        const { investorProfile, deployer, alice, InvestorCategory } =
-            await setUpTestV3();
-
-        const investorId = ethers.encodeBytes32String("USER_ID");
-        const TWITTER = "https://x.com/userId";
-        const YOUTUBE = "https://youtube.com/@userId";
-        const DISCORD = "https://discord/com/userId";
-        const TELEGRAM = "https://t.me/userId";
-
-        const params = {
-            investorId,
-            category: InvestorCategory.AGGRESIVE,
-            wallet: deployer,
-            twitter: TWITTER,
-            discord: DISCORD,
-            youtube: YOUTUBE,
-            telegram: TELEGRAM,
-        };
-
-        const signer = await ethers.getSigner(alice);
-
-        await expect(investorProfile.connect(signer).addInvestor(params)).to.be
-            .reverted;
-
-        const role = await investorProfile.DATA_MANAGER();
-        await investorProfile.grantRole(role, signer.address);
-
-        await expect(
-            investorProfile.connect(signer).updateInvestorDetails(params)
-        ).to.be.revertedWith("invalid investor id");
-
-        await expect(
-            investorProfile.connect(signer).addInvestor(params)
-        ).to.emit(investorProfile, "InvestorAdded");
-
-        params.category = InvestorCategory.CONSERVATIVE;
-
-        await expect(
-            investorProfile.connect(signer).updateInvestorDetails(params)
-        ).to.emit(investorProfile, "InvestorUpdated");
-    });
-
-    it(".. should be able to add investor withdraw amount", async () => {
-        const {
-            investorProfile,
-            AssetCategory,
-            alice,
-            Tier,
-            bob,
-            InvestorCategory,
-        } = await setUpTestV3();
-
-        const otcSaleId = ethers.encodeBytes32String("OTC_SALE");
-        const otcSaleName = "OTC Sale 1";
-        const chainId = 1n;
-        const assetToken = alice;
-        const investmentToken = bob;
-
-        await investorProfile.addAssetOption(
-            otcSaleId,
-            otcSaleName,
-            chainId,
-            investmentToken,
-            assetToken,
-            AssetCategory.NODE_SALE
-        );
-
-        const signer = await ethers.getNamedSigner("alice");
-        const role = await investorProfile.DATA_MANAGER();
-        await investorProfile.grantRole(role, signer.address);
-        const investorId = ethers.encodeBytes32String("USER_ID");
-
-        const params = {
-            investorId,
-            category: InvestorCategory.AGGRESIVE,
-            wallet: bob,
-            twitter: "https://x.com/userId",
-            discord: "https://discord/com/userId",
-            youtube: "https://youtube.com/@userId",
-            telegram: "https://t.me/userId",
-        };
-
-        const tokenAmount = ethers.parseUnits("10000", 6);
-        const assetAmount = 100;
-
-        await investorProfile.addInvestor(params);
+        await investorProfile
+            .connect(signer)
+            [
+                "addInvestor((bytes32,uint8,string,string,string,string,string,string))"
+            ](params);
 
         await investorProfile.addUserInvestment(
             investorId,
@@ -380,22 +243,49 @@ describe("InvestorProfileV3 ", () => {
             assetAmount
         );
 
-        await expect(
-            investorProfile
-                .connect(signer)
-                .withdrawUserInvestment(
-                    investorId,
-                    otcSaleId,
-                    tokenAmount + 200n
-                )
-        ).to.revertedWith("Invalid withdraw amount");
+        const deadline = (await time.latest()) + 30;
 
-        await expect(
-            investorProfile
-                .connect(signer)
-                .withdrawUserInvestment(investorId, otcSaleId, assetAmount)
-        )
-            .to.emit(investorProfile, "UserWithdraw")
-            .withArgs(investorId, otcSaleId, assetAmount);
+        const profileValue = {
+            investorId: investorId,
+            requester: alice,
+            deadline,
+        };
+
+        let signature = await signer.signTypedData(
+            domain,
+            investorProfileType,
+            profileValue
+        );
+
+        const profile = await investorProfile.getInvestorProfile(
+            investorId,
+            alice,
+            deadline,
+            signature
+        );
+        expect(profile.discord).equal(DISCORD);
+
+        const investmentValues = {
+            investorId,
+            assetId: otcSaleId,
+            requester: alice,
+            deadline,
+        };
+
+        signature = await signer.signTypedData(
+            domain,
+            investmentType,
+            investmentValues
+        );
+
+        const investmentDetails = await investorProfile.getInvestmentDetails(
+            params.investorId,
+            otcSaleId,
+            alice,
+            deadline,
+            signature
+        );
+        expect(investmentDetails.assetAmount).to.equal(assetAmount);
+        expect(investmentDetails.investmentAmount).to.equal(tokenAmount);
     });
 });

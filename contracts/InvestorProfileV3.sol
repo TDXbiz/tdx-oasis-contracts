@@ -1,9 +1,14 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.22;
 
+import "@openzeppelin/contracts/access/AccessControl.sol";
+import "@openzeppelin/contracts-upgradeable/utils/cryptography/EIP712Upgradeable.sol";
+import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "./InvestorProfileV2.sol";
 
-contract InvestorProfileV3 is InvestorProfileV2 {
+contract InvestorProfileV3 is InvestorProfileV2, EIP712Upgradeable {
+    using ECDSA for bytes32;
+
     struct InvestorParamsV3 {
         bytes32 investorId;
         InvestorCategory category;
@@ -15,6 +20,22 @@ contract InvestorProfileV3 is InvestorProfileV2 {
         string telegram;
     }
 
+    bytes32 private constant INVESTMENT_REQUEST_TYPEHASH =
+        keccak256(
+            "InvestmentRequest(bytes32 investorId,bytes32 assetId,address requester,uint256 deadline)"
+        );
+    bytes32 private constant INVESTOR_PROFILE_REQUEST_TYPEHASH =
+        keccak256(
+            "InvestorProfileRequest(bytes32 investorId,address requester,uint256 deadline)"
+        );
+
+    /// @custom:oz-upgrades-validate-as-initializer
+    function initializeV3(
+        string memory name,
+        string memory version
+    ) public reinitializer(3) {
+        __EIP712_init(name, version);
+    }
     mapping(bytes32 => string) internal kycIds;
 
     function addInvestor(
@@ -70,13 +91,26 @@ contract InvestorProfileV3 is InvestorProfileV2 {
     }
 
     function getInvestorProfile(
-        bytes32 investorId
-    )
-        external
-        view
-        onlyRole(DATA_MANAGER)
-        returns (InvestorParamsV3 memory investor)
-    {
+        bytes32 investorId,
+        address requester,
+        uint deadline,
+        bytes memory signature
+    ) external view returns (InvestorParamsV3 memory investor) {
+        bytes32 structHash = keccak256(
+            abi.encode(
+                INVESTOR_PROFILE_REQUEST_TYPEHASH,
+                investorId,
+                requester,
+                deadline
+            )
+        );
+
+        bytes32 digest = _hashTypedDataV4(structHash);
+        address signer = ECDSA.recover(digest, signature);
+
+        require(hasRole(DATA_MANAGER, signer), "Not a data manager");
+        require(block.timestamp <= deadline, "Request timed out");
+
         Investor storage params = investors[investorId];
         investor.investorId = params.investorId;
         investor.category = params.category;
@@ -90,8 +124,27 @@ contract InvestorProfileV3 is InvestorProfileV2 {
 
     function getInvestmentDetails(
         bytes32 investorId,
-        bytes32 assetId
-    ) external view onlyRole(DATA_MANAGER) returns (Investment memory) {
+        bytes32 assetId,
+        address requester,
+        uint deadline,
+        bytes calldata signature
+    ) external view returns (Investment memory) {
+        bytes32 structHash = keccak256(
+            abi.encode(
+                INVESTMENT_REQUEST_TYPEHASH,
+                investorId,
+                assetId,
+                requester,
+                deadline
+            )
+        );
+
+        bytes32 digest = _hashTypedDataV4(structHash);
+        address signer = ECDSA.recover(digest, signature);
+
+        require(hasRole(DATA_MANAGER, signer), "Not a data manager");
+        require(block.timestamp <= deadline, "Request timed out");
+
         Investor storage investor = investors[investorId];
         return investor.investments[assetId];
     }
