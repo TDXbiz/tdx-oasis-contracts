@@ -1,7 +1,7 @@
 import { ethers, upgrades } from "hardhat";
 
 const main = async () => {
-    const proxy = "0x487C47491D2224c02324576A83d864FAD7396591"; // proxy address
+    const proxy = "0x4c61b87246Be97E8FebFF7d0d7e5a3F9AEd1abE8"; // proxy address - mainnet
 
     const factory = await ethers.getContractFactory("InvestorProfileV3");
 

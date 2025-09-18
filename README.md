@@ -1,8 +1,13 @@
 # TDX Investor Profile
 
-Oasis sapphire contracts for the TDX Investor Profile. The contracts follows UUPS upgradeable patterns to accumulate new changes on the changes and we are using `hardhat-upgrades` from the `open-zeppelin` for implementing the UUPS pattern.
+Oasis sapphire contracts for the TDX Investor Profile. The contracts follows UUPS upgradeable patterns to accumulate new changes on the changes and we are using `hardhat-upgrades` package from the `openzeppelin` for implementing the UUPS pattern.
 
 Till now, there are 3 versions of contracts been deployed. The deployment addresses can be found in the [.openzeppelin](./.openzeppelin) folder.
+
+The upgrade access is right now is with
+
+-   On testnet - 0x55ecEb75176fA99d6108a4a1f83766701556867B
+-   On mainnet - 0xDFD2168901BD0825d48d44e10A8a387A035aaf2F
 
 ## Version 1
 
