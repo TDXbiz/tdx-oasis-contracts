@@ -6,7 +6,6 @@ import "./InvestorProfileV3.sol";
 
 contract InvestorProfileV4 is InvestorProfileV3, SiweAuthUpgradeable {
     error UnauthorizedCaller();
-    error InvalidToken();
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
@@ -20,12 +19,15 @@ contract InvestorProfileV4 is InvestorProfileV3, SiweAuthUpgradeable {
     }
 
     modifier onlyDataManager(bytes memory token) {
-        if (msg.sender != authMsgSender(token)) revert InvalidToken();
-        if (!hasRole(DATA_MANAGER, msg.sender)) revert UnauthorizedCaller();
+        if (!isDataManager(token)) revert UnauthorizedCaller();
         _;
     }
 
-    // Authenticated view call for Sapphire using SIWE session authentication
+    function isDataManager(bytes memory token) internal view returns (bool) {
+        address caller = authMsgSender(token);
+        return hasRole(DATA_MANAGER, caller);
+    }
+
     function getInvestorProfile(
         bytes32 investorId,
         bytes memory token
@@ -35,15 +37,15 @@ contract InvestorProfileV4 is InvestorProfileV3, SiweAuthUpgradeable {
         onlyDataManager(token)
         returns (InvestorParamsV3 memory investor)
     {
-        Investor storage params = investors[investorId];
-        investor.investorId = params.investorId;
-        investor.category = params.category;
-        investor.wallet = params.wallet;
-        investor.twitter = params.twitter;
-        investor.youtube = params.youtube;
-        investor.discord = params.discord;
-        investor.telegram = params.telegram;
-        investor.kycId = kycIds[params.investorId];
+        Investor storage s = investors[investorId];
+        investor.investorId = s.investorId;
+        investor.category = s.category;
+        investor.wallet = s.wallet;
+        investor.twitter = s.twitter;
+        investor.youtube = s.youtube;
+        investor.discord = s.discord;
+        investor.telegram = s.telegram;
+        investor.kycId = kycIds[s.investorId];
     }
 
     function getInvestmentDetails(
@@ -51,7 +53,6 @@ contract InvestorProfileV4 is InvestorProfileV3, SiweAuthUpgradeable {
         bytes32 assetId,
         bytes memory token
     ) external view onlyDataManager(token) returns (Investment memory) {
-        Investor storage investor = investors[investorId];
-        return investor.investments[assetId];
+        return investors[investorId].investments[assetId];
     }
 }

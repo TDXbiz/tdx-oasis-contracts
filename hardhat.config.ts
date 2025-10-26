@@ -19,19 +19,21 @@ const accounts = [process.env.PRIVATE_KEY as string];
 const config: HardhatUserConfig = {
     solidity: {
         compilers: [
-          {
-            version: "0.8.29",
-            settings: { optimizer: { enabled: true, runs: 200 } }
-          },
-          {
-            version: "0.8.22",
-            settings: { optimizer: { enabled: true, runs: 200 } }
-          }
+            {
+                version: "0.8.29",
+                settings: { optimizer: { enabled: true, runs: 200 } },
+            },
+            {
+                version: "0.8.22",
+                settings: { optimizer: { enabled: true, runs: 200 } },
+            },
         ],
-        overrides: {
-          "contracts/InvestorProfile.sol":       { version: "0.8.22" },
-          "contracts/InvestorProfileParams.sol": { version: "0.8.22" }
-        }
+        settings: {
+            optimizer: {
+                enabled: false,
+                runs: 1,
+            },
+        },
     },
 
     networks: {
@@ -43,7 +45,7 @@ const config: HardhatUserConfig = {
         "sapphire-testnet": {
             url: "https://testnet.sapphire.oasis.io",
             accounts,
-            chainId: 0x5aff,
+            chainId: 23295,
         },
     },
 

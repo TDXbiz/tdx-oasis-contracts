@@ -1,5 +1,8 @@
 import { deployments, ethers, getNamedAccounts, upgrades } from "hardhat";
-import { InvestorProfile__factory } from "../typechain-types";
+import {
+    InvestorProfile__factory,
+    InvestorProfileV4,
+} from "../typechain-types";
 import { InvestorProfileV3 } from "../typechain-types/contracts/InvestorProfileV3";
 
 export const setUpTest = deployments.createFixture(async () => {
@@ -98,5 +101,33 @@ export const setUpTestV3 = deployments.createFixture(async () => {
         investmentType,
         investorProfileType,
         domain,
+    };
+});
+
+export const setUpTestV4 = deployments.createFixture(async () => {
+    const obj = await setUpTestV3();
+    const profileFactory = await ethers.getContractFactory("InvestorProfileV4");
+
+    const domain = "localhost";
+    const chainId = 31337;
+
+    const profile = (await upgrades.upgradeProxy(
+        obj.investorProfile,
+        profileFactory,
+        {
+            kind: "uups",
+            unsafeAllow: ["missing-initializer-call"],
+            call: {
+                fn: "initializeV4",
+                args: [domain],
+            },
+        }
+    )) as unknown as InvestorProfileV4;
+
+    return {
+        ...obj,
+        investorProfile: profile,
+        domain,
+        chainId,
     };
 });
