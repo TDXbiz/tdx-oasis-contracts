@@ -166,14 +166,18 @@ describe.only("InvestorProfileV4 - Siwe Auth", () => {
             telegram: TELEGRAM,
             kycId: "ksjdbfkjsdbfk2",
         };
+
+        console.log("Siwe Msg: ", params);
+
         await expect(
             investorProfile[
                 "addInvestor((bytes32,uint8,string,string,string,string,string,string))"
             ](params)
         ).to.emit(investorProfile, "InvestorAdded");
+
         const profile = await investorProfile.getInvestorProfile(
-            token,
-            investorId
+            investorId,
+            token
         );
 
         console.log("Profile:", profile);

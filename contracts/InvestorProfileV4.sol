@@ -4,6 +4,8 @@ pragma solidity ^0.8.22;
 import "./lib/SiweAuthUpgradeable.sol";
 import "./InvestorProfileV3.sol";
 
+import "hardhat/console.sol";
+
 contract InvestorProfileV4 is InvestorProfileV3, SiweAuthUpgradeable {
     error UnauthorizedCaller();
 
@@ -25,7 +27,9 @@ contract InvestorProfileV4 is InvestorProfileV3, SiweAuthUpgradeable {
 
     function isDataManager(bytes memory token) internal view returns (bool) {
         address caller = authMsgSender(token);
-        return hasRole(DATA_MANAGER, caller);
+        console.log(msg.sender);
+        console.log(authMsgSender(token));
+        return hasRole(DATA_MANAGER, caller) && msg.sender == caller;
     }
 
     function getInvestorProfile(
@@ -54,5 +58,9 @@ contract InvestorProfileV4 is InvestorProfileV3, SiweAuthUpgradeable {
         bytes memory token
     ) external view onlyDataManager(token) returns (Investment memory) {
         return investors[investorId].investments[assetId];
+    }
+
+    function isTokenValid(bytes memory token) external view returns (bool) {
+        return isDataManager(token);
     }
 }
