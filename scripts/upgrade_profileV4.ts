@@ -5,13 +5,7 @@ const main = async () => {
 
     const factory = await ethers.getContractFactory("InvestorProfileV4");
 
-    const domain = "tdx.biz";
-
-    await upgrades.validateUpgrade(proxy, factory, {
-        kind: "uups",
-        unsafeAllow: ["missing-initializer-call"],
-    });
-    console.log("Upgrade is valid.....");
+    const domain = "app.tdx.biz";
 
     const result = await upgrades.upgradeProxy(proxy, factory, {
         kind: "uups",
@@ -20,6 +14,7 @@ const main = async () => {
             fn: "initializeV4",
             args: [domain],
         },
+        unsafeAllow: ["missing-initializer-call"],
     });
 
     console.log("Upgrade transaction sent:", result.target);

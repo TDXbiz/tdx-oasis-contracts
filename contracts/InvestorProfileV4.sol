@@ -27,8 +27,6 @@ contract InvestorProfileV4 is InvestorProfileV3, SiweAuthUpgradeable {
 
     function isDataManager(bytes memory token) internal view returns (bool) {
         address caller = authMsgSender(token);
-        console.log(msg.sender);
-        console.log(authMsgSender(token));
         return hasRole(DATA_MANAGER, caller) && msg.sender == caller;
     }
 
@@ -58,9 +56,5 @@ contract InvestorProfileV4 is InvestorProfileV3, SiweAuthUpgradeable {
         bytes memory token
     ) external view onlyDataManager(token) returns (Investment memory) {
         return investors[investorId].investments[assetId];
-    }
-
-    function isTokenValid(bytes memory token) external view returns (bool) {
-        return isDataManager(token);
     }
 }
