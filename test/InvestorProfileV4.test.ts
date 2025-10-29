@@ -167,8 +167,6 @@ describe.only("InvestorProfileV4 - Siwe Auth", () => {
             kycId: "ksjdbfkjsdbfk2",
         };
 
-        console.log("Siwe Msg: ", params);
-
         await expect(
             investorProfile[
                 "addInvestor((bytes32,uint8,string,string,string,string,string,string))"
@@ -179,8 +177,6 @@ describe.only("InvestorProfileV4 - Siwe Auth", () => {
             investorId,
             token
         );
-
-        console.log("Profile:", profile);
 
         expect(profile.investorId).to.equal(investorId);
         expect(profile.category).to.equal(InvestorCategory.CONSERVATIVE);

@@ -7,6 +7,20 @@ const main = async () => {
 
     const domain = "app.tdx.biz";
 
+    const cont = await ethers.getContractAt("InvestorProfileV3", proxy);
+    console.log(
+        "Has role: ",
+        await cont.hasRole(
+            await cont.DEFAULT_ADMIN_ROLE(),
+            "0x55ecEb75176fA99d6108a4a1f83766701556867B"
+        )
+    );
+
+    await upgrades.validateUpgrade(proxy, factory, {
+        kind: "uups",
+        unsafeAllow: ["missing-initializer-call"],
+    });
+
     const result = await upgrades.upgradeProxy(proxy, factory, {
         kind: "uups",
         redeployImplementation: "onchange",
@@ -17,7 +31,7 @@ const main = async () => {
         unsafeAllow: ["missing-initializer-call"],
     });
 
-    console.log("Upgrade transaction sent:", result.target);
+    console.log("Upgrade transaction sent:", result);
 };
 
 main().catch(console.error);
