@@ -21,13 +21,11 @@ contract InvestorProfileV4 is InvestorProfileV3, SiweAuthUpgradeable {
     }
 
     modifier onlyDataManager(bytes memory token) {
-        if (!isDataManager(token)) revert UnauthorizedCaller();
-        _;
-    }
-
-    function isDataManager(bytes memory token) internal view returns (bool) {
         address caller = authMsgSender(token);
-        return hasRole(DATA_MANAGER, caller) && msg.sender == caller;
+        if (
+            !hasRole(DATA_MANAGER, msg.sender) && !hasRole(DATA_MANAGER, caller)
+        ) revert UnauthorizedCaller();
+        _;
     }
 
     function getInvestorProfile(
