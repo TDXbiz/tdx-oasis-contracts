@@ -9,17 +9,6 @@ import "./InvestorProfileV2.sol";
 contract InvestorProfileV3 is InvestorProfileV2, EIP712Upgradeable {
     using ECDSA for bytes32;
 
-    struct InvestorParamsV3 {
-        bytes32 investorId;
-        InvestorCategory category;
-        string kycId;
-        string wallet;
-        string twitter;
-        string youtube;
-        string discord;
-        string telegram;
-    }
-
     bytes32 private constant INVESTMENT_REQUEST_TYPEHASH =
         keccak256(
             "InvestmentRequest(bytes32 investorId,bytes32 assetId,address requester,uint256 deadline)"
