@@ -45,4 +45,15 @@ abstract contract InvestorProfileParams {
         Tier launchpadLoyalist;
         InvestorCategory category;
     }
+
+    struct InvestorParamsV3 {
+        bytes32 investorId;
+        InvestorCategory category;
+        string kycId;
+        string wallet;
+        string twitter;
+        string youtube;
+        string discord;
+        string telegram;
+    }
 }

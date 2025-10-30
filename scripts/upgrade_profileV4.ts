@@ -5,16 +5,7 @@ const main = async () => {
 
     const factory = await ethers.getContractFactory("InvestorProfileV4");
 
-    const domain = "app.tdx.biz";
-
-    const cont = await ethers.getContractAt("InvestorProfileV3", proxy);
-    console.log(
-        "Has role: ",
-        await cont.hasRole(
-            await cont.DEFAULT_ADMIN_ROLE(),
-            "0x55ecEb75176fA99d6108a4a1f83766701556867B"
-        )
-    );
+    // const domain = "app.tdx.biz";
 
     await upgrades.validateUpgrade(proxy, factory, {
         kind: "uups",
@@ -24,14 +15,15 @@ const main = async () => {
     const result = await upgrades.upgradeProxy(proxy, factory, {
         kind: "uups",
         redeployImplementation: "onchange",
-        call: {
-            fn: "initializeV4",
-            args: [domain],
-        },
+        // since v4 is deployed multiple times for minor changes, we skip the initializer call on testnet
+        // call: {
+        //     fn: "initializeV4",
+        //     args: [domain],
+        // },
         unsafeAllow: ["missing-initializer-call"],
     });
 
-    console.log("Upgrade transaction sent:", result);
+    console.log("Upgrade transaction sent:", result.hash);
 };
 
 main().catch(console.error);
