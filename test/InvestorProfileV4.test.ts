@@ -3,7 +3,7 @@ import { setUpTestV4 } from "./setUp";
 import { ethers } from "hardhat";
 import { SiweMessage } from "siwe";
 
-describe.only("InvestorProfileV4 - Siwe Auth", () => {
+describe("InvestorProfileV4 - Siwe Auth", () => {
     it(".. should deploy the contracts perfectly", async () => {
         const { investorProfile, deployer } = await setUpTestV4();
         const role = await investorProfile.DEFAULT_ADMIN_ROLE();
@@ -131,11 +131,9 @@ describe.only("InvestorProfileV4 - Siwe Auth", () => {
                     AssetCategory.NODE_SALE
                 )
         ).to.be.reverted;
-
-        // only owner can add assets
     });
 
-    it.only(".. should be able to call getProfile using Siwe auth", async () => {
+    it(".. should be able to call getProfile using Siwe auth", async () => {
         const { investorProfile, deployer, InvestorCategory, domain, chainId } =
             await setUpTestV4();
         const signer = await ethers.getNamedSigner("deployer");

@@ -4,8 +4,6 @@ pragma solidity ^0.8.22;
 import "./lib/SiweAuthUpgradeable.sol";
 import "./InvestorProfileV3.sol";
 
-import "hardhat/console.sol";
-
 contract InvestorProfileV4 is InvestorProfileV3, SiweAuthUpgradeable {
     error UnauthorizedCaller();
 
