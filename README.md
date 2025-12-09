@@ -2,7 +2,7 @@
 
 Oasis sapphire contracts for the TDX Investor Profile. The contracts follows UUPS upgradeable patterns to accumulate new changes on the changes and we are using `hardhat-upgrades` package from the `openzeppelin` for implementing the UUPS pattern.
 
-Till now, there are 3 versions of contracts been deployed. The deployment addresses can be found in the [.openzeppelin](./.openzeppelin) folder.
+Till now, there are 4 versions of contracts been deployed. The deployment addresses can be found in the [.openzeppelin](./.openzeppelin) folder.
 
 The upgrade access is right now is with
 
@@ -44,3 +44,9 @@ This version contains only 2 roles.
 -   For the authenticated view calls, users with `DATA_MANAGER_ROLE` must provide the `EIP 712 typed signature` as specified by the function in order to get the data.
 -   For the KYC Ids, a new mapping is added to the contract in order to support the existing layout structure.
 -   To register the KYC Id of the existing users, we can call the `updateInvestorDetails` function with the `InvestorParamsV3` struct.
+
+## Version 4
+
+-   The version 4 has changes related to the view call authentication.
+-   In this version, we are using `SiweAuth` for the authenticated view calls.
+-   SiweAuth is a standard EVM protocol and the standard implementation is available in the `@oasisprotocol/sapphire-contracts` package. But I made it into an OZ upgradeable version as required which can be found [here](./contracts/lib/SiweAuthUpgradeable.sol)
